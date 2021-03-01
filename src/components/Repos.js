@@ -1,10 +1,86 @@
-import React from 'react';
-import styled from 'styled-components';
-import { GithubContext } from '../context/context';
-import { ExampleChart, Pie3D, Column3D, Bar3D, Doughnut2D } from './Charts';
+import React from 'react'
+import styled from 'styled-components'
+import { useGLobalContext } from '../context/context'
+import { ExampleChart, Pie3D, Column3D, Bar3D, Doughnut2D } from './Charts'
 const Repos = () => {
-  return <h2>repos component</h2>;
-};
+  const { repos } = useGLobalContext()
+
+  const languages = repos.reduce((total, item) => {
+    const { language, stargazers_count } = item
+    if (!language) {
+      return total
+    }
+    if (!total[language]) {
+      total[language] = { label: language, value: 1, star: stargazers_count }
+    } else {
+      total[language] = {
+        ...total[language],
+        value: total[language].value + 1,
+        star: total[language].star + stargazers_count,
+      }
+    }
+    return total
+  }, {})
+  const pieHandle = Object.values(languages)
+    .sort((a, b) => {
+      return b.value - a.value
+    })
+    .slice(0, 5)
+
+  const nutHandle = Object.values(languages)
+    .sort((a, b) => {
+      return b.value - a.value
+    })
+    .map((item) => {
+      return { ...item, value: item.star }
+    })
+    .slice(0, 5)
+  console.log(nutHandle)
+
+  //star and forks
+  let { star, forks } = repos.reduce(
+    (total, item) => {
+      const { name, stargazers_count, forks } = item
+      total.star[stargazers_count] = { label: name, value: stargazers_count }
+      total.forks[forks] = { label: name, value: forks }
+      return total
+    },
+    { star: {}, forks: {} }
+  )
+  star = Object.values(star).slice(-5).reverse()
+  forks = Object.values(forks).slice(-5).reverse()
+
+  const chartData = [
+    {
+      label: 'Html',
+      value: '80',
+    },
+    {
+      label: 'Css',
+      value: '160',
+    },
+    {
+      label: 'Javascript',
+      value: '180',
+    },
+    {
+      label: 'React',
+      value: '140',
+    },
+  ]
+  return (
+    <section className='section'>
+      <Wrapper className='section-center'>
+        <Pie3D data={pieHandle} />
+        <Column3D data={star} />
+        {/* <ExampleChart data={chartData} /> */}
+        <Doughnut2D data={nutHandle} />
+        <Bar3D data={forks} />
+        <div></div>
+      </Wrapper>
+    </section>
+  )
+}
 
 const Wrapper = styled.div`
   display: grid;
@@ -28,6 +104,6 @@ const Wrapper = styled.div`
     width: 100% !important;
     border-radius: var(--radius) !important;
   }
-`;
+`
 
-export default Repos;
+export default Repos

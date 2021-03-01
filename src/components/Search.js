@@ -1,10 +1,36 @@
-import React from 'react';
-import styled from 'styled-components';
-import { MdSearch } from 'react-icons/md';
-import { GithubContext } from '../context/context';
+import React from 'react'
+import styled from 'styled-components'
+import { MdSearch } from 'react-icons/md'
+import { useGLobalContext } from '../context/context'
 const Search = () => {
-  return <h2>search component</h2>;
-};
+  const { request, getGithubUser } = useGLobalContext()
+  const [query, setQuery] = React.useState('')
+  const handleSubmite = (e) => {
+    e.preventDefault()
+    if (query) {
+      getGithubUser(query)
+    }
+  }
+  return (
+    <section className='section'>
+      <Wrapper className='section-center'>
+        <form onSubmit={handleSubmite}>
+          <div className='form-control'>
+            <MdSearch />
+            <input
+              type='text'
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder='enter github user'
+            />
+            {request > 0 && <button type='submit'>Search</button>}
+          </div>
+        </form>
+        <h3>requests : {request}/60</h3>
+      </Wrapper>
+    </section>
+  )
+}
 
 const Wrapper = styled.div`
   position: relative;
@@ -74,7 +100,7 @@ const Wrapper = styled.div`
     color: var(--clr-grey-5);
     font-weight: 400;
   }
-`;
+`
 const ErrorWrapper = styled.article`
   position: absolute;
   width: 90vw;
@@ -86,5 +112,5 @@ const ErrorWrapper = styled.article`
     color: red;
     letter-spacing: var(--spacing);
   }
-`;
-export default Search;
+`
+export default Search
